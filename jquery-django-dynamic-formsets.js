@@ -7,6 +7,7 @@ $.fn.djangodynamicformset = function( options ){
         'minForms' : 0,             // Expects int
         'onRemove' : null,          // Expects function
         'onAdd' : null,             // Expects function
+        'onAfterInit' : null,       // Expects function
         'prefix' : "form",          // Expects string
         'removeLink' : "a.remove"   // Expects selector in a form of string
     }
@@ -30,10 +31,11 @@ $.fn.djangodynamicformset = function( options ){
                 }
             }
             $('#id_' + settings.prefix + '-TOTAL_FORMS').val(forms.length);
+            var forms = null;
         },
         
         addForm = function(parent){
-            var row = parent.find( settings.item + ':first' ).clone(true).get(0);
+            var row = $(settings.defaultRow).clone(true).get(0);
 
             if ( typeof row == 'undefined' ){
                 var row = settings.defaultRow;
@@ -73,11 +75,10 @@ $.fn.djangodynamicformset = function( options ){
                 event.preventDefault();
                 deleteForm(event.target, parent);
             });
-
             if ( typeof settings.onAdd == 'function'){
                 settings.onAdd(row);
             }
-
+            row = null;
             return false;
         },
 
@@ -91,6 +92,7 @@ $.fn.djangodynamicformset = function( options ){
                     settings.onRemove(row);
                 }
                 row.remove();
+                row = null;
                 updateElementIndex( parent );
                 return false;
             }
@@ -118,6 +120,11 @@ $.fn.djangodynamicformset = function( options ){
                 deleteForm(el, $jqel);
             }
         });
+
+        if ( typeof settings.onAfterInit == 'function'){
+            settings.onAfterInit();
+        }
+
         return ;
     });
 }
